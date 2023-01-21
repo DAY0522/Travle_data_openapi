@@ -1,0 +1,84 @@
+<!-- https://inpa.tistory.com/entry/JS-%F0%9F%93%9A-Geolocation-API%EB%A1%9C-%F0%9F%97%BA%EF%B8%8F-%EC%9C%84%EB%8F%84-%EA%B2%BD%EB%8F%84-%EC%96%BB%EA%B3%A0-%E2%9B%85-%EB%82%A0%EC%94%A8-%EC%98%A8%EB%8F%84-%EC%A0%95%EB%B3%B4%EB%A5%BC-%EC%96%BB%EC%96%B4%EC%98%A4%EA%B8%B0 -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geolocation example - getCurrentPosition()</title>
+  </head>
+
+  <body>
+    <script>
+      async function whereami() {
+        var options = {
+          // 가능한 경우, 높은 정확도의 위치(예를 들어, GPS 등) 를 읽어오려면 true로 설정
+          // 그러나 이 기능은 배터리 지속 시간에 영향을 미친다.
+          enableHighAccuracy: false, // 대략적인 값이라도 상관 없음: 기본값
+
+          // 위치 정보가 충분히 캐시되었으면, 이 프로퍼티를 설정하자,
+          // 위치 정보를 강제로 재확인하기 위해 사용하기도 하는 이 값의 기본 값은 0이다.
+          maximumAge: 30000, // 5분이 지나기 전까지는 수정되지 않아도 됨
+
+          // 위치 정보를 받기 위해 얼마나 오랫동안 대기할 것인가?
+          // 기본값은 Infinity이므로 getCurrentPosition()은 무한정 대기한다.
+          timeout: 15000, // 15초 이상 기다리지 않는다.
+        };
+
+        if (navigator.geolocation) {
+          // geolocation 을 지원한다면 위치를 요청한다.
+          let result = await navigator.geolocation.getCurrentPosition(
+            showYourLocation,
+            showErrorMsg,
+            options
+          );
+
+          console.log(result);
+        } else
+          elt.innerHTML = "이 브라우저에서는 Geolocation이 지원되지 않습니다.";
+
+        async function showYourLocation({ coords, timestamp }) {
+          // 위치 탐색 성공 시 실행
+          const latitude = coords.latitude; // 위도
+          const longitude = coords.longitude; // 경도
+
+          const response = await fetch("http://localhost:5000/location", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              status: "OK",
+              data: {
+                latitude,
+                longitude,
+              },
+            }),
+          });
+
+          return response;
+        }
+
+        async function showErrorMsg(error) {
+          // 위치 탐색 실패 시 실행
+          const errorMsg = error.code;
+
+          const response = await fetch("http://localhost:5000/location", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              status: "Error",
+              error: errorMsg,
+            }),
+          });
+
+          return response;
+        }
+      }
+
+      whereami();
+    </script>
+  </body>
+</html>

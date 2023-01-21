@@ -1,0 +1,9 @@
+저기 스크립트에 나온 값을 저장할 수 있음 그러고 axios 혹은 fetch 라는 함수를 조금 보면 바로 
+POST 로 값을 보낼 수 있음 서버로
+
+axios.post(localhost~, {위도: 값, 경도: 값}
+
+
+http 통신
+fetch 함수란?
+flask에서 http 통신 하는 법
